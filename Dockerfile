@@ -1,16 +1,15 @@
-FROM mcr.microsoft.com/playwright:v1.61.0-jammy
+FROM python:3.13-bookworm
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv
+ENV PYTHONUNBUFFERED=1
 
 COPY requirements.txt .
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN python -m playwright install --with-deps chromium
 
 COPY . .
 
-CMD ["python3", "app.py"]
+CMD ["python", "app.py"]
