@@ -3,6 +3,7 @@ FROM python:3.13-bookworm
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 COPY requirements.txt .
 

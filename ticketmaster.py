@@ -11,11 +11,14 @@ class Status(Enum):
 
 def check_availability():
     try:
-
         with sync_playwright() as p:
 
             browser = p.chromium.launch(
-                headless=True
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage"
+                ]
             )
 
             page = browser.new_page()
@@ -24,34 +27,29 @@ def check_availability():
 
             page.goto(
                 EVENT_URL,
-                wait_until="domcontentloaded",
-                timeout=30000
+                wait_until="networkidle",
+                timeout=60000
             )
 
             page.wait_for_timeout(8000)
 
-            text = page.locator("body").inner_text().upper()
+            html = page.content()
+            text = page.locator("body").inner_text()
+
+            with open("pagina.html", "w", encoding="utf-8") as f:
+                f.write(html)
 
             with open("ultimo_texto.txt", "w", encoding="utf-8") as f:
                 f.write(text)
 
-            contiene_agotado = "AGOTADO" in text
-
-            print("========================================")
-            print("¿Contiene AGOTADO?:", contiene_agotado)
-            print("========================================")
+            print("=" * 40)
+            print(text[:1000])
+            print("=" * 40)
 
             browser.close()
 
-            if contiene_agotado:
-                print("➡️ DEVOLVIENDO Status.SOLD_OUT")
-                return Status.SOLD_OUT
-
-            print("➡️ DEVOLVIENDO Status.AVAILABLE")
-            return Status.AVAILABLE
+            return Status.SOLD_OUT
 
     except Exception as e:
-
         print("❌ ERROR EN TICKETMASTER:", e)
-
         return Status.ERROR
