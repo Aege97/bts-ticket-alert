@@ -10,6 +10,8 @@ class Status(Enum):
 
 
 def check_availability():
+    print("\n🔥 ===== TICKETMASTER VERSION 2 ===== 🔥\n")
+
     try:
         with sync_playwright() as p:
 
@@ -17,18 +19,18 @@ def check_availability():
                 headless=True,
                 args=[
                     "--no-sandbox",
-                    "--disable-dev-shm-usage"
-                ]
+                    "--disable-dev-shm-usage",
+                ],
             )
 
             page = browser.new_page()
 
-            print("🌐 Abriendo Ticketmaster...")
+            print("🌐 Abriendo Ticketmaster... VERSION 2")
 
             page.goto(
                 EVENT_URL,
                 wait_until="networkidle",
-                timeout=60000
+                timeout=60000,
             )
 
             page.wait_for_timeout(8000)
@@ -36,20 +38,23 @@ def check_availability():
             html = page.content()
             text = page.locator("body").inner_text()
 
+            print("\n========== PRIMEROS 1000 CARACTERES ==========\n")
+            print(text[:1000])
+            print("\n========== FIN ==========\n")
+
             with open("pagina.html", "w", encoding="utf-8") as f:
                 f.write(html)
 
             with open("ultimo_texto.txt", "w", encoding="utf-8") as f:
                 f.write(text)
 
-            print("=" * 40)
-            print(text[:1000])
-            print("=" * 40)
-
             browser.close()
+
+            print("⚠️ DEVOLVIENDO SOLD_OUT SOLO PARA PRUEBAS")
 
             return Status.SOLD_OUT
 
     except Exception as e:
-        print("❌ ERROR EN TICKETMASTER:", e)
+        print("\n❌ ERROR EN TICKETMASTER")
+        print(e)
         return Status.ERROR
